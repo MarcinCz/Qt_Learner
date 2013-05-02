@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "questionsdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -15,8 +16,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
+private slots:
+
+    void on_actionEdit_data_triggered();
+
 private:
     Ui::MainWindow *ui;
+    QuestionDialog *questionDialog;
 };
 
 #endif // MAINWINDOW_H
