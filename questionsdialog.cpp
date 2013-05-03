@@ -1,7 +1,9 @@
 #include "questionsdialog.h"
 #include "ui_questiondialog.h"
+#include <QAbstractButton>
 #include <QMessageBox>
 #include <QHeaderView>
+#include <algorithm>
 
 QuestionDialog::QuestionDialog(QWidget *parent) :
     QDialog(parent),
@@ -11,6 +13,7 @@ QuestionDialog::QuestionDialog(QWidget *parent) :
 
     //setting tableView
     questionsModel = new QuestionsModel();
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView->setModel(questionsModel);
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -33,7 +36,20 @@ void QuestionDialog::on_pushButtonAdd_clicked()
     ui->tableView->edit(index);
 }
 
+bool QuestionDialog::modelIndexCompare(QModelIndex i, QModelIndex j)
+{
+    return(i.row()>j.row());
+}
+
 void QuestionDialog::on_pushButtonDelete_clicked()
 {
-    questionsModel->removeRows(ui->tableView->currentIndex().row(),1);
+    //ui->tableView->;
+    QModelIndexList selectedList = ui->tableView->selectionModel()->selectedRows();
+
+    qSort(selectedList.begin(),selectedList.end());
+    for(int i=selectedList.count()-1; i>-1; i--)
+    {
+        questionsModel->removeRows(selectedList.at(i).row(),1);
+    }
+
 }

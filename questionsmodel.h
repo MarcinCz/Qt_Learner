@@ -27,11 +27,12 @@ public:
     Question* getNextQuestion();
     void makeCopy();
     void setCopyAsDefault();
-
+    bool loadData(QString fileName);
+    bool saveData(QString fileName);
 
 private:
-    QVector<Question*> *questionsVector;
-    QVector<Question*> *copyVector;
+    QVector<Question*> questionsVector;
+    QVector<Question*> copyVector;
     
 signals:
     //void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);

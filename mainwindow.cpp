@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <QFileDialog>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -24,6 +25,7 @@ void MainWindow::on_actionEdit_data_triggered()
         if(questionDialog->exec() == QDialog::Rejected)
         {
             questionDialog->questionsModel->setCopyAsDefault();
+
         }
 
 }
@@ -61,4 +63,16 @@ void MainWindow::on_pushButtonDontKnow_clicked()
     question->notKnow();
     question = questionDialog->questionsModel->getNextQuestion();
     ui->plainTextEdit_Question->setPlainText(question->getQuestion());
+}
+
+void MainWindow::on_actionLoad_data_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Wczytaj dane"), "./", tr("Pliki tekstowe (*.txt)"));
+}
+
+void MainWindow::on_actionSave_data_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Zapisz dane"), "./", tr("Pliki tekstowe (*.txt)"));
+    if(!questionDialog->questionsModel->saveData(fileName))
+        QMessageBox::warning(this,tr("Błąd zapisu"),tr("Nie można zapisać danych"));
 }

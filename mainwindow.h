@@ -28,6 +28,10 @@ private slots:
 
     void on_pushButtonDontKnow_clicked();
 
+    void on_actionLoad_data_triggered();
+
+    void on_actionSave_data_triggered();
+
 private:
     Ui::MainWindow *ui;
     QuestionDialog *questionDialog;

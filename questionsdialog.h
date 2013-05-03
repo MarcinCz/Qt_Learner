@@ -2,6 +2,7 @@
 #define QUESTIONDIALOG_H
 
 #include <QDialog>
+#include <QAbstractButton>
 #include "questionsmodel.h"
 
 namespace Ui {
@@ -24,7 +25,8 @@ private slots:
     void on_pushButtonDelete_clicked();
 
 private:
-    Ui::QuestionDialog *ui;   
+    Ui::QuestionDialog *ui;
+    bool modelIndexCompare(QModelIndex i, QModelIndex j);
 };
 
 #endif // QUESTIONDIALOG_H

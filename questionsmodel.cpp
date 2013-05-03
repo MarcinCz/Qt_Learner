@@ -1,3 +1,4 @@
+#include <QtCore>
 #include <stdlib.h>
 #include <time.h>
 
@@ -9,30 +10,31 @@ QuestionsModel::QuestionsModel(QObject *parent) :
 {
     srand (time(NULL));
 
-    this->copyVector = new QVector<Question*>();
-    this->questionsVector = new QVector<Question*>();
-    this->questionsVector->append(new Question("a?","tak"));
-    this->questionsVector->append(new Question("c?","tak"));
-    this->questionsVector->append(new Question("b?","nienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienie"));
+    //this->copyVector = new QVector<Question*>();
+    //this->questionsVector = new QVector<Question*>();
+    this->questionsVector.append(new Question("a?","tak"));
+    this->questionsVector.append(new Question("c?","tak"));
+    this->questionsVector.append(new Question("b?","nienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienie"));
 }
 
 void QuestionsModel::clear()
 {
-    for(int i=0; i<questionsVector->size(); i++)
-        delete questionsVector->at(i);
+    for(int i=0; i<questionsVector.size(); i++)
+        delete questionsVector.at(i);
 
-    delete questionsVector;
+   // delete questionsVector;
 
-    for(int i=0; i<copyVector->size(); i++)
-        delete copyVector->at(i);
+    for(int i=0; i<copyVector.size(); i++)
+        delete copyVector.at(i);
 
-    delete copyVector;
+    //delete copyVector;
 }
 
 int QuestionsModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return this->questionsVector->size();
+    qDebug() << questionsVector.size();
+    return this->questionsVector.size();
 
 }
 
@@ -50,9 +52,9 @@ QVariant QuestionsModel::data(const QModelIndex &index, int role) const
         switch(index.column())
         {
             case 0:
-                return questionsVector->at(index.row())->getQuestion();
+                return questionsVector.at(index.row())->getQuestion();
             case 1:
-                return questionsVector->at(index.row())->getAnswer();
+                return questionsVector.at(index.row())->getAnswer();
             default:
                 return QVariant::Invalid;
         }
@@ -97,9 +99,8 @@ bool QuestionsModel::insertRows(int position, int rows, const QModelIndex &index
     beginInsertRows(QModelIndex(), position, position+rows-1);
 
      for (int row=0; row < rows; row++) {
-         questionsVector->insert(position,new Question("",""));
+         questionsVector.insert(position,new Question("",""));
      }
-
     endInsertRows();
     return true;
 }
@@ -110,8 +111,8 @@ bool QuestionsModel::removeRows(int position, int rows, const QModelIndex &index
     beginRemoveRows(QModelIndex(), position, position+rows-1);
 
     for (int row=0; row < rows; ++row) {
-        delete questionsVector->at(position);
-        questionsVector->remove(position);
+        delete questionsVector.at(position);
+        questionsVector.remove(position);
     }
 
     endRemoveRows();
@@ -125,10 +126,10 @@ bool QuestionsModel::setData(const QModelIndex & index, const QVariant & value, 
         switch(index.column())
         {
             case 0:
-                questionsVector->at(index.row())->setQuestion(value.toString());
+                questionsVector.at(index.row())->setQuestion(value.toString());
                 break;
             case 1:
-                questionsVector->at(index.row())->setAnswer(value.toString());
+                questionsVector.at(index.row())->setAnswer(value.toString());
                 break;
             default:
                 return false;
@@ -150,21 +151,21 @@ Qt::ItemFlags QuestionsModel::flags(const QModelIndex &index) const
 
 Question* QuestionsModel::getNextQuestion()
 {
-    if(questionsVector->size()==0)
+    if(questionsVector.size()==0)
         return NULL;
 
     for(;;)
     {
         int rule = rand() % 21;
-        int position = rand() % questionsVector->size();
-        if(questionsVector->at(position)->getProbabilityModifier() >= rule)
+        int position = rand() % questionsVector.size();
+        if(questionsVector.at(position)->getProbabilityModifier() >= rule)
         {
-            for(int i=0; i<questionsVector->size(); i++)
+            for(int i=0; i<questionsVector.size(); i++)
             {
                 if(i == position) continue;
-                questionsVector->at(i)->unused();
+                questionsVector.at(i)->unused();
             }
-            return questionsVector->at(position);
+            return questionsVector.at(position);
         }
 
     }
@@ -172,28 +173,84 @@ Question* QuestionsModel::getNextQuestion()
 
 void QuestionsModel::makeCopy()
 {
-    for(int i=0; i<copyVector->size(); i++)
-        delete copyVector->at(i);
+    for(int i=0; i<copyVector.size(); i++)
+        delete copyVector.at(i);
 
-    copyVector->clear();
+    copyVector.clear();
 
-    foreach(Question* q, *questionsVector)
+    foreach(Question* q, questionsVector)
     {
-        copyVector->append(q->getCopy());
+        copyVector.append(q->getCopy());
     }
 }
 
 void QuestionsModel::setCopyAsDefault()
 {
-    foreach(Question* q, *questionsVector)
+
+    if(questionsVector.size()>0)
     {
-        delete q;
+        foreach(Question* q, questionsVector)
+        {
+            delete q;
+        }
+        beginRemoveRows(QModelIndex(),0,questionsVector.size()-1);
+        questionsVector.clear();
+        endRemoveRows();
     }
 
-    questionsVector->clear();
+    if(copyVector.size()==0)
+        return;
 
-    foreach(Question* q, *copyVector)
+    beginInsertRows(QModelIndex(),0,copyVector.size()-1);
+    for(int i=0; i<copyVector.size(); i++)
     {
-        questionsVector->append(q->getCopy());
+
+        questionsVector.append(copyVector.at(i)->getCopy());
+
     }
+    endInsertRows();
+    qDebug() << questionsVector.size();
+    return;
 }
+
+bool QuestionsModel::loadData(QString fileName)
+{
+    QFile file(fileName);
+
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QTextStream stream(&file);
+
+
+
+        stream.flush();
+        file.close();
+        return true;
+    }
+
+    return false;
+}
+
+bool QuestionsModel::saveData(QString fileName)
+{
+    QFile file(fileName);
+
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream stream(&file);
+
+        foreach(Question* q, questionsVector)
+        {
+            stream << q->getQuestion() << "\n";
+            stream << q->getAnswer() << "\n";
+            stream << q->getProbabilityModifier() << "\n";
+        }
+        stream.flush();
+        file.close();
+        return true;
+    }
+
+    return false;
+}
+
+
