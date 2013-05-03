@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <time.h>
 
 #include "questionsmodel.h"
 #include "question.h"
@@ -5,7 +7,10 @@
 QuestionsModel::QuestionsModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
-    this->questionsVector=new QVector<Question*>();
+    srand (time(NULL));
+
+    this->copyVector = new QVector<Question*>();
+    this->questionsVector = new QVector<Question*>();
     this->questionsVector->append(new Question("a?","tak"));
     this->questionsVector->append(new Question("c?","tak"));
     this->questionsVector->append(new Question("b?","nienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienie"));
@@ -15,6 +20,13 @@ void QuestionsModel::clear()
 {
     for(int i=0; i<questionsVector->size(); i++)
         delete questionsVector->at(i);
+
+    delete questionsVector;
+
+    for(int i=0; i<copyVector->size(); i++)
+        delete copyVector->at(i);
+
+    delete copyVector;
 }
 
 int QuestionsModel::rowCount(const QModelIndex &parent) const
@@ -129,9 +141,59 @@ bool QuestionsModel::setData(const QModelIndex & index, const QVariant & value, 
 }
 
 Qt::ItemFlags QuestionsModel::flags(const QModelIndex &index) const
- {
-     if (!index.isValid())
-         return Qt::ItemIsEnabled;
+{
+    if (!index.isValid())
+     return Qt::ItemIsEnabled;
 
-     return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
- }
+    return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+}
+
+Question* QuestionsModel::getNextQuestion()
+{
+    if(questionsVector->size()==0)
+        return NULL;
+
+    for(;;)
+    {
+        int rule = rand() % 21;
+        int position = rand() % questionsVector->size();
+        if(questionsVector->at(position)->getProbabilityModifier() >= rule)
+        {
+            for(int i=0; i<questionsVector->size(); i++)
+            {
+                if(i == position) continue;
+                questionsVector->at(i)->unused();
+            }
+            return questionsVector->at(position);
+        }
+
+    }
+}
+
+void QuestionsModel::makeCopy()
+{
+    for(int i=0; i<copyVector->size(); i++)
+        delete copyVector->at(i);
+
+    copyVector->clear();
+
+    foreach(Question* q, *questionsVector)
+    {
+        copyVector->append(q->getCopy());
+    }
+}
+
+void QuestionsModel::setCopyAsDefault()
+{
+    foreach(Question* q, *questionsVector)
+    {
+        delete q;
+    }
+
+    questionsVector->clear();
+
+    foreach(Question* q, *copyVector)
+    {
+        questionsVector->append(q->getCopy());
+    }
+}

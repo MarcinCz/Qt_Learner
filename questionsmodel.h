@@ -24,9 +24,14 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void clear();
+    Question* getNextQuestion();
+    void makeCopy();
+    void setCopyAsDefault();
+
 
 private:
     QVector<Question*> *questionsVector;
+    QVector<Question*> *copyVector;
     
 signals:
     //void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);

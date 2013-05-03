@@ -7,19 +7,22 @@ class Question
 {
 public:
     Question();
-    Question(QString,QString,int prob=10);
+    Question(QString question,QString answer,int prob=10);
 
     //setters
-    void setQuestion(QString);
-    void setAnswer(QString);
-    void setProbabilityModifier(int);
+    void setQuestion(QString question);
+    void setAnswer(QString answer);
+    void setProbabilityModifier(int prob);
 
     //getters
     QString getQuestion();
     QString getAnswer();
     int getProbabilityModifier();
 
-    void modifyProbabilityModifier(int);
+    void know();
+    void notKnow();
+    void unused();
+    Question* getCopy();
 
 private:
     QString question;

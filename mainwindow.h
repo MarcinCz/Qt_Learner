@@ -20,9 +20,18 @@ private slots:
 
     void on_actionEdit_data_triggered();
 
+    void on_actionStart_triggered();
+
+    void on_pushButtonShowAnswer_clicked();
+
+    void on_pushButtonKnow_clicked();
+
+    void on_pushButtonDontKnow_clicked();
+
 private:
     Ui::MainWindow *ui;
     QuestionDialog *questionDialog;
+    Question *question;
 };
 
 #endif // MAINWINDOW_H

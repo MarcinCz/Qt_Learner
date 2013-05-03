@@ -13,8 +13,10 @@ class QuestionDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit QuestionDialog(QWidget *parent = 0);
+    explicit QuestionDialog(QWidget *parent = 0);    
     ~QuestionDialog();
+
+    QuestionsModel *questionsModel;
     
 private slots:
     void on_pushButtonAdd_clicked();
@@ -22,8 +24,7 @@ private slots:
     void on_pushButtonDelete_clicked();
 
 private:
-    Ui::QuestionDialog *ui;
-    QuestionsModel *questionsModel;
+    Ui::QuestionDialog *ui;   
 };
 
 #endif // QUESTIONDIALOG_H

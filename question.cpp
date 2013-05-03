@@ -48,7 +48,25 @@ void Question::setProbabilityModifier(int prob)
     this->probabilityModifier = prob;
 }
 
-void Question::modifyProbabilityModifier(int prob)
+void Question::know()
 {
-    this->probabilityModifier += prob;
+    probabilityModifier -= 2;
+    if(probabilityModifier < 0) probabilityModifier = 0;
+}
+
+void Question::notKnow()
+{
+    probabilityModifier += 2;
+    if(probabilityModifier >20) probabilityModifier = 20;
+}
+
+void Question::unused()
+{
+    probabilityModifier += 1;
+    if(probabilityModifier >20) probabilityModifier = 20;
+}
+
+Question* Question::getCopy()
+{
+    return new Question(question, answer, probabilityModifier);
 }
