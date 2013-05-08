@@ -9,12 +9,6 @@ QuestionsModel::QuestionsModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
     srand (time(NULL));
-
-    //this->copyVector = new QVector<Question*>();
-    //this->questionsVector = new QVector<Question*>();
-    this->questionsVector.append(new Question("a?","tak"));
-    this->questionsVector.append(new Question("c?","tak"));
-    this->questionsVector.append(new Question("b?","nienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienie"));
     this->makeCopy();
 }
 
@@ -23,14 +17,11 @@ void QuestionsModel::clear()
     for(int i=0; i<questionsVector.size(); i++)
         delete questionsVector.at(i);
 
-   // delete questionsVector;
-
     for(int i=0; i<copyVector.size(); i++)
         delete copyVector.at(i);
-
-    //delete copyVector;
 }
 
+//returns row count
 int QuestionsModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
@@ -38,12 +29,14 @@ int QuestionsModel::rowCount(const QModelIndex &parent) const
 
 }
 
+//return column count
 int QuestionsModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 2;
 }
 
+//returns data in given index
 QVariant QuestionsModel::data(const QModelIndex &index, int role) const
 {
 
@@ -63,6 +56,7 @@ QVariant QuestionsModel::data(const QModelIndex &index, int role) const
     return QVariant::Invalid;
 }
 
+//returns headers
 QVariant QuestionsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if(role == Qt::DisplayRole)
@@ -93,6 +87,7 @@ QVariant QuestionsModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant::Invalid;
 }
 
+//row insert
 bool QuestionsModel::insertRows(int position, int rows, const QModelIndex &index)
 {
     Q_UNUSED(index);
@@ -105,6 +100,7 @@ bool QuestionsModel::insertRows(int position, int rows, const QModelIndex &index
     return true;
 }
 
+//rows remove
 bool QuestionsModel::removeRows(int position, int rows, const QModelIndex &index)
 {
     Q_UNUSED(index);
@@ -119,6 +115,7 @@ bool QuestionsModel::removeRows(int position, int rows, const QModelIndex &index
     return true;
 }
 
+//sets data using value and index
 bool QuestionsModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
     if(index.isValid() && role==Qt::EditRole)
@@ -141,6 +138,7 @@ bool QuestionsModel::setData(const QModelIndex & index, const QVariant & value, 
     return false;
 }
 
+//informs that all items are enabled
 Qt::ItemFlags QuestionsModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
@@ -149,6 +147,7 @@ Qt::ItemFlags QuestionsModel::flags(const QModelIndex &index) const
     return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
 }
 
+//gives random question
 Question* QuestionsModel::getNextQuestion()
 {
     if(questionsVector.size()==0)
@@ -171,6 +170,7 @@ Question* QuestionsModel::getNextQuestion()
     }
 }
 
+//copies questions from questionsVector to copyVector
 void QuestionsModel::makeCopy()
 {
     if(copyVector.size()>0)
@@ -198,6 +198,7 @@ void QuestionsModel::makeCopy()
     endInsertRows();
 }
 
+//copies questions from copyVector to questionsVector
 void QuestionsModel::setCopyAsDefault()
 {
 
@@ -222,6 +223,7 @@ void QuestionsModel::setCopyAsDefault()
     return;
 }
 
+//loads data from given filename
 bool QuestionsModel::loadData(QString fileName)
 {
     QFile file(fileName);
@@ -288,6 +290,7 @@ bool QuestionsModel::loadData(QString fileName)
     return false;
 }
 
+//saves data to given filename
 bool QuestionsModel::saveData(QString fileName)
 {
     QFile file(fileName);

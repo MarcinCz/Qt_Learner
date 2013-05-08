@@ -33,20 +33,23 @@ QuestionDialog::~QuestionDialog()
 //add click
 void QuestionDialog::on_pushButtonAdd_clicked()
 {
+    //insert row
     int row = questionsModel->rowCount(QModelIndex());
     questionsModel->insertRows(row,1);
 
+    //go to inserted
     QModelIndex index = questionsModel->index(row,0);
     ui->tableView->setCurrentIndex(index);
     ui->tableView->edit(index);
 }
 
-
+//delete click
 void QuestionDialog::on_pushButtonDelete_clicked()
 {
-    //ui->tableView->;
+    //get selected
     QModelIndexList selectedList = ui->tableView->selectionModel()->selectedRows();
 
+    //remove selected
     qSort(selectedList.begin(),selectedList.end());
     for(int i=selectedList.count()-1; i>-1; i--)
     {
@@ -55,6 +58,7 @@ void QuestionDialog::on_pushButtonDelete_clicked()
 
 }
 
+//apply click
 void QuestionDialog::on_pushButtonApply_clicked()
 {
     questionsModel->setCopyAsDefault();
