@@ -50,13 +50,13 @@ void Question::setProbabilityModifier(int prob)
 
 void Question::know()
 {
-    probabilityModifier -= 2;
+    probabilityModifier -= 3;
     if(probabilityModifier < 0) probabilityModifier = 0;
 }
 
 void Question::notKnow()
 {
-    probabilityModifier += 2;
+    probabilityModifier += 3;
     if(probabilityModifier >20) probabilityModifier = 20;
 }
 

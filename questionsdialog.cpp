@@ -17,6 +17,10 @@ QuestionDialog::QuestionDialog(QWidget *parent) :
     ui->tableView->setModel(questionsModel);
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+    //other things
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Anuluj"));
+    this->setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
 }
 
 QuestionDialog::~QuestionDialog()
@@ -26,6 +30,7 @@ QuestionDialog::~QuestionDialog()
     delete questionsModel;
 }
 
+//add click
 void QuestionDialog::on_pushButtonAdd_clicked()
 {
     int row = questionsModel->rowCount(QModelIndex());
@@ -36,10 +41,6 @@ void QuestionDialog::on_pushButtonAdd_clicked()
     ui->tableView->edit(index);
 }
 
-bool QuestionDialog::modelIndexCompare(QModelIndex i, QModelIndex j)
-{
-    return(i.row()>j.row());
-}
 
 void QuestionDialog::on_pushButtonDelete_clicked()
 {
@@ -52,4 +53,9 @@ void QuestionDialog::on_pushButtonDelete_clicked()
         questionsModel->removeRows(selectedList.at(i).row(),1);
     }
 
+}
+
+void QuestionDialog::on_pushButtonApply_clicked()
+{
+    questionsModel->setCopyAsDefault();
 }

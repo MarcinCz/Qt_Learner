@@ -15,6 +15,7 @@ QuestionsModel::QuestionsModel(QObject *parent) :
     this->questionsVector.append(new Question("a?","tak"));
     this->questionsVector.append(new Question("c?","tak"));
     this->questionsVector.append(new Question("b?","nienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienienie"));
+    this->makeCopy();
 }
 
 void QuestionsModel::clear()
@@ -33,8 +34,7 @@ void QuestionsModel::clear()
 int QuestionsModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    qDebug() << questionsVector.size();
-    return this->questionsVector.size();
+    return this->copyVector.size();
 
 }
 
@@ -52,9 +52,9 @@ QVariant QuestionsModel::data(const QModelIndex &index, int role) const
         switch(index.column())
         {
             case 0:
-                return questionsVector.at(index.row())->getQuestion();
+                return copyVector.at(index.row())->getQuestion();
             case 1:
-                return questionsVector.at(index.row())->getAnswer();
+                return copyVector.at(index.row())->getAnswer();
             default:
                 return QVariant::Invalid;
         }
@@ -99,7 +99,7 @@ bool QuestionsModel::insertRows(int position, int rows, const QModelIndex &index
     beginInsertRows(QModelIndex(), position, position+rows-1);
 
      for (int row=0; row < rows; row++) {
-         questionsVector.insert(position,new Question("",""));
+         copyVector.insert(position,new Question("",""));
      }
     endInsertRows();
     return true;
@@ -111,8 +111,8 @@ bool QuestionsModel::removeRows(int position, int rows, const QModelIndex &index
     beginRemoveRows(QModelIndex(), position, position+rows-1);
 
     for (int row=0; row < rows; ++row) {
-        delete questionsVector.at(position);
-        questionsVector.remove(position);
+        delete copyVector.at(position);
+        copyVector.remove(position);
     }
 
     endRemoveRows();
@@ -126,10 +126,10 @@ bool QuestionsModel::setData(const QModelIndex & index, const QVariant & value, 
         switch(index.column())
         {
             case 0:
-                questionsVector.at(index.row())->setQuestion(value.toString());
+                copyVector.at(index.row())->setQuestion(value.toString());
                 break;
             case 1:
-                questionsVector.at(index.row())->setAnswer(value.toString());
+                copyVector.at(index.row())->setAnswer(value.toString());
                 break;
             default:
                 return false;
@@ -173,15 +173,29 @@ Question* QuestionsModel::getNextQuestion()
 
 void QuestionsModel::makeCopy()
 {
-    for(int i=0; i<copyVector.size(); i++)
-        delete copyVector.at(i);
-
-    copyVector.clear();
-
-    foreach(Question* q, questionsVector)
+    if(copyVector.size()>0)
     {
-        copyVector.append(q->getCopy());
+        foreach(Question* q, copyVector)
+        {
+            delete q;
+        }
+        beginRemoveRows(QModelIndex(),0,copyVector.size()-1);
+        copyVector.clear();
+        endRemoveRows();
     }
+
+
+    if(questionsVector.size()==0)
+        return;
+
+    beginInsertRows(QModelIndex(),0,questionsVector.size()-1);
+    for(int i=0; i<questionsVector.size(); i++)
+    {
+
+        copyVector.append(questionsVector.at(i)->getCopy());
+
+    }
+    endInsertRows();
 }
 
 void QuestionsModel::setCopyAsDefault()
@@ -193,23 +207,18 @@ void QuestionsModel::setCopyAsDefault()
         {
             delete q;
         }
-        beginRemoveRows(QModelIndex(),0,questionsVector.size()-1);
         questionsVector.clear();
-        endRemoveRows();
     }
 
     if(copyVector.size()==0)
         return;
 
-    beginInsertRows(QModelIndex(),0,copyVector.size()-1);
     for(int i=0; i<copyVector.size(); i++)
     {
 
         questionsVector.append(copyVector.at(i)->getCopy());
 
     }
-    endInsertRows();
-    qDebug() << questionsVector.size();
     return;
 }
 
@@ -219,11 +228,59 @@ bool QuestionsModel::loadData(QString fileName)
 
     if(file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
+
+        //clear copyVector
+        if(copyVector.size()>0)
+        {
+            foreach(Question* q, copyVector)
+            {
+                delete q;
+            }
+            beginRemoveRows(QModelIndex(),0,copyVector.size()-1);
+            copyVector.clear();
+            endRemoveRows();
+        }
+
         QTextStream stream(&file);
 
+        QString question;
+        QString answer;
+        int prob;
+        QString probLine;
 
+        for(int i=0; ; i++)
+        {
+            question = stream.readLine();
+            if(question.isNull())
+            {
+                setCopyAsDefault();
+                break;
+            }
 
-        stream.flush();
+            answer = stream.readLine();
+            if(answer.isNull())
+            {
+                makeCopy();
+                return false;
+            }
+
+            probLine = stream.readLine();
+            if(probLine.isNull())
+            {
+                makeCopy();
+                return false;
+            }
+            prob = probLine.toInt()-1;
+            if(prob<0 || prob>20)
+            {
+                makeCopy();
+                return false;
+            }
+            beginInsertRows(QModelIndex(),i,i);
+            copyVector.append(new Question(question, answer, prob));
+            endInsertRows();
+
+        }
         file.close();
         return true;
     }
@@ -243,7 +300,7 @@ bool QuestionsModel::saveData(QString fileName)
         {
             stream << q->getQuestion() << "\n";
             stream << q->getAnswer() << "\n";
-            stream << q->getProbabilityModifier() << "\n";
+            stream << q->getProbabilityModifier()+1 << "\n";
         }
         stream.flush();
         file.close();

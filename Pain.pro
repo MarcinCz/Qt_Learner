@@ -30,3 +30,5 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     Images.qrc
 
+CONFIG += embed_manifest_exe
+

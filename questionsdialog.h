@@ -24,6 +24,8 @@ private slots:
 
     void on_pushButtonDelete_clicked();
 
+    void on_pushButtonApply_clicked();
+
 private:
     Ui::QuestionDialog *ui;
     bool modelIndexCompare(QModelIndex i, QModelIndex j);
